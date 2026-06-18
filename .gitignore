@@ -1,34 +1,43 @@
-# Gradle files
-.gradle/
-build/
 
-# Local configuration file (sdk path, etc)
-local.properties
+'use client'
+import { useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
 
-# Log/OS Files
-*.log
+const supabase = createClient(
+  '<<<YOUR_SUPABASE_URL>>>',
+  '<<<YOUR_SUPABASE_ANON_KEY>>>'
+)
 
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.aab
-*.apk
-output-metadata.json
+const CONFIG = {
+  STORE_NAME: 'HULOGAN Store',
+  RECEIVER_NAME: 'Sammy Servera',
+  RECEIVER_MOBILE: '09360745453',
+}
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+export default function Home() {
+  const [item, setItem] = useState('')
+  const [price, setPrice] = useState(0)
+  const [down, setDown] = useState(0)
+  const [months, setMonths] = useState(6)
+  const [file, setFile] = useState(null)
+  const [refNum, setRefNum] = useState('')
+  const [msg, setMsg] = useState('')
 
-# Keystore files
-*.jks
-*.keystore
+  const monthly = price ? ((price - down) / months).toFixed(2) : 0
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+  async function submitHulugan() {
+    const ref = 'HULOG' + Date.now().toString().slice(-6)
+    setRefNum(ref)
+    
+    const { error } = await supabase.from('hulugan').insert({
+      item_name: item,
+      total_price: price,
+      down_payment: down,
+      monthly_payment: monthly,
+      months: months,
+      balance: price - down,
+      ref_number: ref,
+      status: 'pending_receipt'
+    })
 
-# Android Profiling
-*.hprof
+    if(!error) setMsg(`Step 1: Save this Ref No: ${ref}\nStep 2: Send ₱${down} to ${CONFIG
